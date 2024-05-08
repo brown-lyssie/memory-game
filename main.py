@@ -1,6 +1,7 @@
 from MemoryGame import MemoryGame
 from Player import Player
 def main():
+  print("For demo!")
   player1 = Player("Player 1")
   player2 = Player("Player 2")
   game = MemoryGame(player1, player2)
