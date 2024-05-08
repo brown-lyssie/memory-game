@@ -81,7 +81,113 @@ class MemoryGameUnitTests(unittest.TestCase):
     game.swap_player()
     self.assertEqual(game.current_player_index, 1)
 
+class IntegationTests(unittest.TestCase):
+  def testPlayersInGame(self):
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    self.assertEqual(game.players[0].name, "Lyssie")
+    self.assertEqual(game.players[1].name, "Liam")
+  def testPlayerGetsLetter(self):
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    game.initiate_board()
+    testSet = set()
+    self.assertEqual(game.players[0].letters, testSet)
+    # set up: let player Lyssie guess correctly
+    a_locations = []
+    for w in range(2):
+      for l in range(2):
+        if game.board[l][w] == "A":
+          a_locations.append((w,l))
+    game.pick_two(a_locations[0][0],a_locations[0][1], a_locations[1][0], a_locations[1][1])
+    # they now have A in their list of letters
+    testSet.add("A")
+    self.assertEqual(game.players[0].letters, testSet)
 
+  def testPlayerTies(self):
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    game.initiate_board()
+    # check where the pairs are
+    a_locations = []
+    b_locations = []
+    for w in range(2):
+      for l in range(2):
+        if game.board[l][w] == "A":
+          a_locations.append((w,l))
+        else:
+          b_locations.append((w,l))
+    # Lyssie guesses the first
+    game.pick_two(a_locations[0][0], a_locations[0][1], a_locations[1][0], a_locations[1][1])
+    # Liam guesses the second
+    game.pick_two(b_locations[0][0], b_locations[0][1], b_locations[1][0], b_locations[1][1])
+    # check that game is now over and tied
+    self.assertTrue(game.game_is_over)
+    self.assertTrue(game.tie)
+
+  def testPlayer1Wins(self):
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    game.set_dimensions(2,3)
+    game.initiate_board()
+    # check where the pairs are
+    a_locations = []
+    b_locations = []
+    c_locations = []
+    for w in range(3):
+      for l in range(2):
+        if game.board[l][w] == "A":
+          a_locations.append((w,l))
+        elif game.board[l][w] == "B":
+          b_locations.append((w,l))
+        else:
+          c_locations.append((w,l))
+    # Lyssie guesses the first
+    game.pick_two(a_locations[0][0], a_locations[0][1], a_locations[1][0], a_locations[1][1])
+    # Liam guesses the second
+    game.pick_two(b_locations[0][0], b_locations[0][1], b_locations[1][0], b_locations[1][1])
+    # Lyssie guesses the second
+    game.pick_two(c_locations[0][0], c_locations[0][1], c_locations[1][0], c_locations[1][1])
+    # check that game is now over and tied
+    self.assertTrue(game.game_is_over)
+    self.assertEqual(game.winner.name, "Lyssie")
+  
+  def testWrongGuess(self):
+    # test that a player doesn't get a letter when their guess is bad
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    game.set_dimensions(2,3)
+    game.initiate_board()
+    # check where the pairs are
+    a_locations = []
+    b_locations = []
+    c_locations = []
+    for w in range(3):
+      for l in range(2):
+        if game.board[l][w] == "A":
+          a_locations.append((w,l))
+        elif game.board[l][w] == "B":
+          b_locations.append((w,l))
+        else:
+          c_locations.append((w,l))
+    # Lyssie guesses poorly
+    game.pick_two(a_locations[0][0], a_locations[0][1], b_locations[1][0], b_locations[1][1])
+    self.assertEqual(game.players[0].letters, set())
+  
+  def testPlayerDoesntChangeIfErrorRaise(self):
+    # test that the current player doesn't change if their guess raises an error
+    player1 = Player("Lyssie")
+    player2 = Player("Liam")
+    game = MemoryGame(player1, player2)
+    game.set_dimensions(2,3)
+    game.initiate_board()
+    # Lyssie guesses outside of bounds
+    self.assertRaises(ValueError, game.pick_two, 0, 0, -1, -1)
 
 
 if __name__ == "__main__":
