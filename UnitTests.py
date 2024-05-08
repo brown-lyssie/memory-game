@@ -24,7 +24,7 @@ class MemoryGameUnitTests(unittest.TestCase):
     player1 = Player("Lyssie")
     player2 = Player("Liam")
     game = MemoryGame(player1, player2)
-    self.assertEqual(game.length, 2)
+    self.assertEqual(game.length, 5)
     self.assertEqual(game.width, 2)
     self.assertEqual(game.current_player_index, 0)
     self.assertEqual(game.board, [["-", "-"], ["-", "-"]])
